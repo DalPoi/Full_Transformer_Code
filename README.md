@@ -1,4 +1,7 @@
-# Import google drive
+# The Full Transformer Code
+### Initial Settings
+The codes used for importing the google drive and necessary libraies
+```
 from google.colab import drive
 drive.mount('/content/drive')
 
@@ -21,16 +24,17 @@ from tensorflow.keras.metrics import Precision, Recall
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.utils import Sequence
 
-
 np.random.seed(seed=17)
+```
 
-# Import simulation results
+Import simulation results
+```
 results = pd.read_csv('/content/drive/MyDrive/Transformer_Data/results_summary.csv', keep_default_na=False)
 results.head()
+```
 
-
-# 7000 flag 0 files + 7000 flag 1 files
-
+Prepare 7000 flag 0 files + 7000 flag 1 files and split 
+```
 # Set flag files path
 flag_0_path = "/content/drive/MyDrive/Pickle_Data_Files/flag_0"
 flag_1_path = "/content/drive/MyDrive/Pickle_Data_Files/flag_1"
@@ -71,8 +75,9 @@ test_paths, test_labels = filepaths[13000:], labels[13000:]            # 10% Tes
 
 # Check the data size
 print(f"Train data: {len(train_paths)}, Validation data: {len(val_paths)}, Test data: {len(test_paths)}")
-
-
+```
+Data Generator
+```
 # Data generator
 def data_generator_prev(batch_size, filepaths, labels, length):
     def gen():
@@ -109,16 +114,10 @@ for (X_encoder, X_decoder), y in data_generator_prev(10, train_paths, train_labe
     num += 1
     if num > 4:
         break
-
-
+```
+Model Parameters
+```
 K.clear_session()
-
-import tensorflow as tf
-from tensorflow.keras.layers import Input, Dense, Dropout, LayerNormalization, GlobalAveragePooling1D, MultiHeadAttention
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import Precision, Recall
-import numpy as np
 
 # Positional Encoding
 def positional_encoding(seq_len, d_model):
@@ -233,10 +232,9 @@ model.compile(loss=losses, optimizer=optimizer, metrics=metrics)
 
 # Model output summary
 model.summary()
-
-
-
-
+```
+Model Training
+```
 # Train Settings
 EPOCH_SIZE = 30
 
@@ -269,10 +267,9 @@ model_save_path = "/content/drive/MyDrive/Transformer.keras"
 model.save(model_save_path)
 
 print(f"✅ Saved Successfully : {model_save_path}")
-
-
-
-
+```
+Result Visualisation
+```
 # Loss graph
 plt.figure(figsize=(8, 6))
 plt.title("Learning Curves", fontsize=16, fontweight='bold', pad=10)
@@ -287,10 +284,8 @@ plt.grid(True, linestyle='--', alpha=1)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
-
-
-
-
+```
+```
 # Accuracy graph
 plt.figure(figsize=(8, 6))
 plt.title("Accuracy Curves", fontsize=16, fontweight='bold', pad=10)
@@ -305,10 +300,8 @@ plt.grid(True, linestyle='--', alpha=1)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
-
-
-
-
+```
+```
 # Recall & Precision graph
 batch_size = 64 
 num_batches = 10  
@@ -359,10 +352,8 @@ plt.grid(True, linestyle='--', alpha=1)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
-
-
-
-
+```
+```
 # PR-AUC & recall metrics
 pr_auc = auc(recall, precision)
 print(f"PR-AUC: {pr_auc:.4f}")
@@ -371,10 +362,8 @@ print(f"PR-AUC: {pr_auc:.4f}")
 y_pred_labels = (y_pred_prob > 0.5).astype(int)  
 f1 = f1_score(y_test, y_pred_labels)
 print(f"F1-Score: {f1:.4f}")
-
-
-
-
+```
+```
 # RMSE graph
 train_rmse = np.sqrt(history.history['loss'])
 val_rmse = np.sqrt(history.history['val_loss'])
@@ -392,10 +381,9 @@ plt.grid(True, linestyle='--', alpha=1)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
-
-
-
-
+```
+Test Model
+```
 # Test model
 test_y, pred_y = [], []
 count=0
@@ -422,3 +410,4 @@ acc = accuracy_score(test_y, pred_y)
 
 print('Accuracy on test set: {:.3f}'.format(acc))
 print(classification_report(test_y, pred_y))
+```
